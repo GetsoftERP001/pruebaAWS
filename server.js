@@ -2,6 +2,21 @@ const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
 const path = require('path');
+const mysql = require('mysql');
+const conexion = mysql.createConnection({
+    host : '172.31.85.255',
+    database : 'prueba',
+    user : 'desarrollo',
+    password : 'Desarrollo54321*',
+});
+
+conexion.connect(function(err) {
+    if (err) {
+        console.error('Error de conexion: ' + err.stack);
+        return;
+    }
+    console.log('Conectado con el identificador ' + conexion.threadId);
+});
 
 const app = express();
 
@@ -11,7 +26,15 @@ app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 app.use(express.static(path.join(__dirname,'public')));
 
-app.get('/', (req, res) => res.send('<h1>hola mundo desde Express</h1'))
+app.get('/', (req, res) => {
+    conexion.query('SELECT * FROM producto', (error, rows) => {
+        if (error){
+            throw error;
+        }else{
+            res.send(rows);
+        }
+    });
+});
 
 
 app.listen(8080, function () {
